@@ -11,7 +11,6 @@ export default function AppLayout({ children, className }) {
                 {children}
             </main>
 
-            {/* FAB floating button */}
             <FAB sidebarOpen={false} />
         </div>
     );
