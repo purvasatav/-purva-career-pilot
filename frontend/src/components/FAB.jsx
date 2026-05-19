@@ -6,23 +6,21 @@ const FAB = ({ sidebarOpen }) => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile + resize safe
+  // detect mobile
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
-
     checkMobile();
     window.addEventListener("resize", checkMobile);
-
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Scroll hide/show behavior
+  // scroll hide/show
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > lastScrollY) {
-        setVisible(false); // scroll down → hide
+        setVisible(false);
       } else {
-        setVisible(true); // scroll up → show
+        setVisible(true);
       }
       setLastScrollY(window.scrollY);
     };
@@ -31,34 +29,27 @@ const FAB = ({ sidebarOpen }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Hide FAB on mobile when sidebar is open
   if (isMobile && sidebarOpen) return null;
-
-  // Hide on scroll down
   if (!visible) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 20,
-        right: 20,
-        zIndex: 9999,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-end",
-      }}
-    >
-      {/* Menu */}
+    <div style={{
+      position: "fixed",
+      bottom: 20,
+      right: 20,
+      zIndex: 9999,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "flex-end"
+    }}>
+      
       {open && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            marginBottom: 10,
-            gap: "8px",
-          }}
-        >
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          marginBottom: 10,
+          gap: "8px"
+        }}>
           <button>Create Portfolio</button>
           <button>Upload Resume</button>
           <button>Search Jobs</button>
@@ -66,7 +57,6 @@ const FAB = ({ sidebarOpen }) => {
         </div>
       )}
 
-      {/* FAB Button */}
       <button
         onClick={() => setOpen(!open)}
         style={{
@@ -78,9 +68,8 @@ const FAB = ({ sidebarOpen }) => {
           fontSize: 28,
           border: "none",
           cursor: "pointer",
-          transition: "0.3s ease",
           transform: open ? "rotate(45deg)" : "rotate(0deg)",
-          boxShadow: "0 6px 15px rgba(0,0,0,0.2)",
+          transition: "0.3s"
         }}
       >
         +
