@@ -3,7 +3,18 @@ import React, { useState, useEffect } from "react";
 const FAB = ({ sidebarOpen }) => {
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(window.scrollY);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile + resize safe
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Scroll hide/show behavior
   useEffect(() => {
@@ -20,11 +31,10 @@ const FAB = ({ sidebarOpen }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  const isMobile = window.innerWidth < 768;
-
-  // Hide on mobile if sidebar is open
+  // Hide FAB on mobile when sidebar is open
   if (isMobile && sidebarOpen) return null;
 
+  // Hide on scroll down
   if (!visible) return null;
 
   return (
