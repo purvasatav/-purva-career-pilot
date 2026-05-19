@@ -1,4 +1,4 @@
-import FAB from "./components/FAB";
+import FAB from "./FAB";
 import AppSidebar from "./AppSidebar";
 import { cn } from "../lib/utils";
 
