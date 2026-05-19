@@ -11,7 +11,7 @@ export default function AppLayout({ children, className }) {
                 {children}
             </main>
 
-            {/* ✅ FAB should be here */}
+            {/* FAB floating button */}
             <FAB sidebarOpen={false} />
         </div>
     );
