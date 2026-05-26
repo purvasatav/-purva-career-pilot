@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/anurag3407/career-pilot/compare/v1.31.1...v1.32.0) (2026-05-26)
+
+
+### Features
+
+* implement confetti burst portfolio template ([798a1b4](https://github.com/anurag3407/career-pilot/commit/798a1b475b4c9bd7a933478465ce5d434f577e3a))
+
 ## [1.31.1](https://github.com/anurag3407/career-pilot/compare/v1.31.0...v1.31.1) (2026-05-26)
 
 
