@@ -1,22 +1,630 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion as Motion } from 'framer-motion';
-import { RotateCcw } from 'lucide-react';
-
-import data from '../../../../data/dummy_data.json';
-import { quizQuestions, sectionMeta } from './constants';
-import ProgressTracker from './ProgressTracker';
-import QuizCard from './QuizCard';
-import RevealSection from './RevealSection';
 import {
-  About,
-  Contact,
-  Experience,
-  Hero,
-  Projects,
-  Skills,
-  Testimonials,
-} from './sections';
-import { safeArray } from './utils';
+  ArrowRight,
+  Award,
+  Briefcase,
+  Check,
+  ChevronRight,
+  Code2,
+  ExternalLink,
+  Github,
+  Linkedin,
+  Lock,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Play,
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Trophy,
+  Twitter,
+  Unlock,
+  UserRound,
+  Zap,
+} from 'lucide-react';
+import data from '../../../../data/dummy_data.json';
+
+const sectionMeta = [
+  { id: 'hero', title: 'Hero', icon: Sparkles },
+  { id: 'about', title: 'About', icon: UserRound },
+  { id: 'skills', title: 'Skills', icon: Code2 },
+  { id: 'projects', title: 'Projects', icon: Zap },
+  { id: 'experience', title: 'Experience', icon: Briefcase },
+  { id: 'testimonials', title: 'Testimonials', icon: MessageCircle },
+  { id: 'contact', title: 'Contact', icon: Mail },
+];
+
+const quizQuestions = [
+  {
+    question: 'Which technology powers most modern frontend apps?',
+    options: ['React', 'Spreadsheets', 'Fax machines', 'Rotary phones'],
+    answer: 'React',
+  },
+  {
+    question: 'What does Git help developers manage?',
+    options: ['Source code versions', 'Coffee temperature', 'Office chairs', 'Keyboard brightness'],
+    answer: 'Source code versions',
+  },
+  {
+    question: 'Which CSS approach is used by this portfolio template?',
+    options: ['Tailwind CSS', 'Table layouts', 'Inline-only styling', 'Printed style guides'],
+    answer: 'Tailwind CSS',
+  },
+  {
+    question: 'What makes a portfolio project more convincing?',
+    options: ['Clear outcomes and links', 'Hidden details', 'No context', 'Broken previews'],
+    answer: 'Clear outcomes and links',
+  },
+  {
+    question: 'What do testimonials add to a professional profile?',
+    options: ['Social proof', 'Compile errors', 'Empty space', 'Random noise'],
+    answer: 'Social proof',
+  },
+  {
+    question: 'What should a visitor do after discovering great work?',
+    options: ['Start a conversation', 'Close the tab', 'Forget the name', 'Ignore the links'],
+    answer: 'Start a conversation',
+  },
+];
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const safeArray = (value) => (Array.isArray(value) ? value : []);
+
+function GlassPanel({ children, className = '' }) {
+  return (
+    <div className={`rounded-[1.75rem] border border-white/10 bg-white/[0.06] shadow-2xl shadow-cyan-950/30 backdrop-blur-xl ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+function EmptyState({ label }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.04] p-5 text-sm text-slate-400">
+      {label} will appear here when portfolio data is available.
+    </div>
+  );
+}
+
+function ProgressTracker({ unlockedCount, activeQuestion, totalQuestions }) {
+  const progress = Math.round(((unlockedCount - 1) / totalQuestions) * 100);
+
+  return (
+    <GlassPanel className="sticky top-4 z-30 p-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
+            <Trophy className="h-4 w-4" />
+            Quest Progress
+          </div>
+          <p className="mt-1 text-sm text-slate-400">
+            {unlockedCount} of {sectionMeta.length} sections unlocked
+          </p>
+        </div>
+
+        <div className="min-w-0 flex-1 lg:max-w-xl">
+          <div className="h-3 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
+            <Motion.div
+              className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-emerald-300"
+              initial={false}
+              animate={{ width: `${progress}%` }}
+              transition={{ type: 'spring', stiffness: 90, damping: 18 }}
+            />
+          </div>
+          <div className="mt-3 grid grid-cols-7 gap-2">
+            {sectionMeta.map((section, index) => {
+              const isUnlocked = index < unlockedCount;
+              const isNext = index === unlockedCount;
+
+              return (
+                <div
+                  key={section.id}
+                  className={`group relative flex min-h-12 flex-col items-center justify-center rounded-xl border text-[10px] font-semibold uppercase tracking-wide transition ${
+                    isUnlocked
+                      ? 'border-cyan-300/40 bg-cyan-300/10 text-cyan-100 shadow-lg shadow-cyan-500/10'
+                      : isNext
+                        ? 'border-fuchsia-300/40 bg-fuchsia-300/10 text-fuchsia-100'
+                        : 'border-white/10 bg-slate-950/70 text-slate-500'
+                  }`}
+                >
+                  {isUnlocked ? React.createElement(section.icon, { className: 'h-4 w-4' }) : <Lock className="h-4 w-4" />}
+                  <span className="mt-1 hidden sm:block">{section.title}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-slate-300">
+          <span className="text-slate-500">Question</span>{' '}
+          <span className="font-bold text-white">{Math.min(activeQuestion + 1, totalQuestions)}</span>
+          <span className="text-slate-500">/{totalQuestions}</span>
+        </div>
+      </div>
+    </GlassPanel>
+  );
+}
+
+function QuizCard({ question, questionIndex, totalQuestions, disabled, onCorrect }) {
+  const [selected, setSelected] = useState('');
+  const [isCorrect, setIsCorrect] = useState(null);
+
+  const chooseAnswer = (option) => {
+    if (disabled || isCorrect === true) return;
+
+    const correct = option === question.answer;
+    setSelected(option);
+    setIsCorrect(correct);
+
+    if (correct) {
+      setTimeout(() => {
+        onCorrect();
+        setSelected('');
+        setIsCorrect(null);
+      }, 650);
+    }
+  };
+
+  if (!question) {
+    return (
+      <GlassPanel className="overflow-hidden p-6">
+        <div className="flex items-center gap-3 text-emerald-200">
+          <ShieldCheck className="h-6 w-6" />
+          <div>
+            <h3 className="text-xl font-bold text-white">Portfolio fully unlocked</h3>
+            <p className="text-sm text-slate-400">Every section is now available to explore.</p>
+          </div>
+        </div>
+      </GlassPanel>
+    );
+  }
+
+  return (
+    <GlassPanel className="overflow-hidden">
+      <div className="border-b border-white/10 bg-gradient-to-r from-cyan-400/10 via-fuchsia-400/10 to-emerald-400/10 p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-cyan-100">
+            <Play className="h-3.5 w-3.5" />
+            Unlock Round {questionIndex + 1}
+          </div>
+          <div className="text-xs font-semibold text-slate-400">
+            {questionIndex + 1}/{totalQuestions}
+          </div>
+        </div>
+        <h2 className="mt-5 text-2xl font-black tracking-tight text-white sm:text-3xl">
+          {question.question}
+        </h2>
+      </div>
+
+      <div className="grid gap-3 p-5 sm:grid-cols-2">
+        {question.options.map((option) => {
+          const isSelected = selected === option;
+          const showCorrect = isSelected && isCorrect === true;
+          const showWrong = isSelected && isCorrect === false;
+
+          return (
+            <Motion.button
+              key={option}
+              type="button"
+              whileHover={{ y: -3, scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => chooseAnswer(option)}
+              className={`group flex min-h-16 items-center justify-between rounded-2xl border p-4 text-left text-sm font-semibold transition ${
+                showCorrect
+                  ? 'border-emerald-300/70 bg-emerald-400/20 text-emerald-50 shadow-lg shadow-emerald-500/20'
+                  : showWrong
+                    ? 'border-rose-300/60 bg-rose-400/15 text-rose-100'
+                    : 'border-white/10 bg-slate-950/70 text-slate-200 hover:border-cyan-300/50 hover:bg-cyan-300/10'
+              }`}
+            >
+              <span>{option}</span>
+              {showCorrect ? (
+                <Check className="h-5 w-5" />
+              ) : (
+                <ChevronRight className="h-5 w-5 text-slate-500 transition group-hover:text-cyan-200" />
+              )}
+            </Motion.button>
+          );
+        })}
+      </div>
+
+      <div className="border-t border-white/10 px-5 py-4 text-sm">
+        <AnimatePresence mode="wait">
+          {isCorrect === false && (
+            <Motion.p
+              key="wrong"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="text-rose-200"
+            >
+              Not quite. Try another answer to open the next portfolio module.
+            </Motion.p>
+          )}
+          {isCorrect === true && (
+            <Motion.p
+              key="correct"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="text-emerald-200"
+            >
+              Correct. Access granted.
+            </Motion.p>
+          )}
+          {isCorrect === null && (
+            <Motion.p
+              key="idle"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-slate-400"
+            >
+              Choose the best answer to reveal {sectionMeta[questionIndex + 1]?.title || 'the next section'}.
+            </Motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+    </GlassPanel>
+  );
+}
+
+function LockedOverlay({ title }) {
+  return (
+    <div className="flex min-h-40 flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-slate-950/60 p-6 text-center">
+      <div className="grid h-14 w-14 place-items-center rounded-2xl border border-fuchsia-300/30 bg-fuchsia-300/10 text-fuchsia-100 shadow-lg shadow-fuchsia-500/10">
+        <Lock className="h-6 w-6" />
+      </div>
+      <h3 className="mt-4 text-lg font-bold text-white">{title} locked</h3>
+      <p className="mt-2 max-w-sm text-sm text-slate-400">
+        Answer the active quiz prompt to reveal this part of the portfolio.
+      </p>
+    </div>
+  );
+}
+
+function RevealSection({ id, title, icon: Icon, index, unlocked, children }) {
+  return (
+    <Motion.section
+      id={id}
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.55, delay: index * 0.04 }}
+      className="relative"
+    >
+      <GlassPanel className={`relative overflow-hidden p-5 sm:p-7 ${unlocked ? '' : 'min-h-56'}`}>
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className={`grid h-11 w-11 place-items-center rounded-2xl border ${unlocked ? 'border-cyan-300/40 bg-cyan-300/10 text-cyan-100' : 'border-white/10 bg-slate-950 text-slate-500'}`}>
+              {unlocked ? React.createElement(Icon, { className: 'h-5 w-5' }) : <Lock className="h-5 w-5" />}
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Level {index + 1}</p>
+              <h2 className="text-2xl font-black text-white sm:text-3xl">{title}</h2>
+            </div>
+          </div>
+          <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-widest ${unlocked ? 'border-emerald-300/40 bg-emerald-300/10 text-emerald-100' : 'border-white/10 bg-slate-900 text-slate-500'}`}>
+            {unlocked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+            {unlocked ? 'Unlocked' : 'Locked'}
+          </span>
+        </div>
+
+        {unlocked ? (
+          <Motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+          >
+            {children}
+          </Motion.div>
+        ) : (
+          <LockedOverlay title={title} />
+        )}
+      </GlassPanel>
+    </Motion.section>
+  );
+}
+
+function StatTile({ value, label }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-3 text-center">
+      <div className="text-xl font-black text-white">{value ?? '0'}+</div>
+      <div className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
+    </div>
+  );
+}
+
+function Hero({ personal, stats }) {
+  return (
+    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <div>
+        <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-cyan-100">
+          <Sparkles className="h-4 w-4" />
+          Quiz Reveal Portfolio
+        </div>
+        <h1 className="mt-6 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+          {personal?.name || 'Portfolio Name'}
+        </h1>
+        <p className="mt-4 max-w-2xl text-xl font-semibold text-cyan-100 sm:text-2xl">
+          {personal?.title || 'Creative Professional'}
+        </p>
+        <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300">
+          {personal?.tagline || personal?.bio || 'A polished portfolio experience is ready to be unlocked.'}
+        </p>
+        {personal?.location && (
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300">
+            <MapPin className="h-4 w-4 text-fuchsia-200" />
+            {personal.location}
+          </div>
+        )}
+      </div>
+
+      <div className="relative mx-auto w-full max-w-sm">
+        <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-cyan-400/30 via-fuchsia-400/20 to-emerald-300/20 blur-3xl" />
+        <div className="relative rounded-[2rem] border border-white/10 bg-slate-950/70 p-4 shadow-2xl shadow-cyan-950/40">
+          {personal?.avatar ? (
+            <img
+              src={personal.avatar}
+              alt={personal?.name || 'Portfolio avatar'}
+              className="aspect-square w-full rounded-[1.5rem] object-cover"
+            />
+          ) : (
+            <div className="grid aspect-square w-full place-items-center rounded-[1.5rem] bg-slate-900 text-slate-500">
+              <UserRound className="h-20 w-20" />
+            </div>
+          )}
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <StatTile value={stats?.yearsExperience} label="Years" />
+            <StatTile value={stats?.projectsCompleted} label="Projects" />
+            <StatTile value={stats?.happyClients} label="Clients" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function About({ personal }) {
+  return (
+    <div className="grid gap-6 md:grid-cols-[0.85fr_1.15fr] md:items-center">
+      {personal?.avatar ? (
+        <img
+          src={personal.avatar}
+          alt={personal?.name || 'Portfolio avatar'}
+          className="aspect-[4/5] w-full rounded-3xl object-cover ring-1 ring-white/10"
+        />
+      ) : (
+        <div className="grid aspect-[4/5] w-full place-items-center rounded-3xl bg-slate-950 text-slate-500 ring-1 ring-white/10">
+          <UserRound className="h-16 w-16" />
+        </div>
+      )}
+      <div className="space-y-5">
+        <p className="text-lg leading-8 text-slate-300">
+          {personal?.bio || 'No biography has been added yet.'}
+        </p>
+        <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-5">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-100">Signal</p>
+          <p className="mt-2 text-xl font-black text-white">
+            {personal?.tagline || 'Building thoughtful digital products.'}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Skills({ skills }) {
+  if (!skills.length) return <EmptyState label="Skills" />;
+
+  const grouped = skills.reduce((acc, skill) => {
+    const category = skill.category || 'Core';
+    acc[category] = [...(acc[category] || []), skill];
+    return acc;
+  }, {});
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-2">
+      {Object.entries(grouped).map(([category, items]) => (
+        <div key={category} className="rounded-3xl border border-white/10 bg-slate-950/55 p-5">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-black text-white">
+            <Star className="h-5 w-5 text-fuchsia-200" />
+            {category}
+          </h3>
+          <div className="space-y-4">
+            {items.map((skill) => (
+              <div key={`${category}-${skill.name}`}>
+                <div className="mb-2 flex items-center justify-between text-sm">
+                  <span className="font-semibold text-slate-200">{skill.name}</span>
+                  <span className="text-cyan-200">{skill.level ?? 0}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-slate-900">
+                  <Motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-fuchsia-300"
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${skill.level ?? 0}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Projects({ projects }) {
+  if (!projects.length) return <EmptyState label="Projects" />;
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-2">
+      {projects.map((project, index) => (
+        <ProjectCard key={`${project.title}-${index}`} project={project} index={index} />
+      ))}
+    </div>
+  );
+}
+
+function ProjectCard({ project, index }) {
+  return (
+    <Motion.article
+      whileHover={{ y: -6 }}
+      className="group overflow-hidden rounded-3xl border border-white/10 bg-slate-950/60"
+    >
+      {project.image ? (
+        <div className="relative aspect-video overflow-hidden">
+          <img
+            src={project.image}
+            alt={project.title || `Project ${index + 1}`}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+        </div>
+      ) : (
+        <div className="grid aspect-video place-items-center bg-slate-900 text-slate-500">
+          <Code2 className="h-12 w-12" />
+        </div>
+      )}
+      <div className="p-5">
+        <h3 className="text-xl font-black text-white">{project.title || 'Untitled Project'}</h3>
+        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-400">
+          {project.description || 'Project details are coming soon.'}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {safeArray(project.techStack).map((tech) => (
+            <span key={tech} className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-100">
+              {tech}
+            </span>
+          ))}
+        </div>
+        <div className="mt-5 flex flex-wrap gap-3">
+          {project.liveUrl && (
+            <a href={project.liveUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-100">
+              Live <ExternalLink className="h-4 w-4" />
+            </a>
+          )}
+          {project.githubUrl && (
+            <a href={project.githubUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-white transition hover:border-fuchsia-200 hover:bg-fuchsia-300/10">
+              Code <Github className="h-4 w-4" />
+            </a>
+          )}
+        </div>
+      </div>
+    </Motion.article>
+  );
+}
+
+function Experience({ experience }) {
+  if (!experience.length) return <EmptyState label="Experience" />;
+
+  return (
+    <div className="relative space-y-4">
+      <div className="absolute bottom-6 left-5 top-6 hidden w-px bg-gradient-to-b from-cyan-300 via-fuchsia-300 to-emerald-300 sm:block" />
+      {experience.map((item, index) => (
+        <div key={`${item.company}-${item.role}-${index}`} className="relative rounded-3xl border border-white/10 bg-slate-950/60 p-5 sm:ml-12">
+          <div className="absolute -left-[3.25rem] top-6 hidden h-5 w-5 rounded-full border-4 border-slate-950 bg-cyan-300 shadow-lg shadow-cyan-300/30 sm:block" />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 className="text-xl font-black text-white">{item.role || 'Role'}</h3>
+              <p className="font-semibold text-cyan-100">{item.company || 'Company'}</p>
+            </div>
+            <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-300">
+              {item.period || 'Timeline'}
+            </span>
+          </div>
+          <p className="mt-4 text-sm leading-6 text-slate-400">{item.description || 'Experience details are coming soon.'}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Testimonials({ testimonials }) {
+  if (!testimonials.length) return <EmptyState label="Testimonials" />;
+
+  return (
+    <div className="grid gap-5 md:grid-cols-2">
+      {testimonials.map((testimonial, index) => (
+        <Motion.figure
+          key={`${testimonial.name}-${index}`}
+          whileHover={{ y: -5 }}
+          className="rounded-3xl border border-white/10 bg-slate-950/60 p-5"
+        >
+          <div className="flex items-center gap-4">
+            {testimonial.avatar ? (
+              <img
+                src={testimonial.avatar}
+                alt={testimonial.name || 'Testimonial avatar'}
+                className="h-14 w-14 rounded-2xl object-cover"
+              />
+            ) : (
+              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-slate-900 text-slate-500">
+                <UserRound className="h-6 w-6" />
+              </div>
+            )}
+            <figcaption>
+              <h3 className="font-black text-white">{testimonial.name || 'Anonymous'}</h3>
+              <p className="text-sm text-cyan-100">{testimonial.role || 'Collaborator'}</p>
+            </figcaption>
+          </div>
+          <blockquote className="mt-5 text-sm leading-7 text-slate-300">
+            "{testimonial.text || 'No testimonial text has been added yet.'}"
+          </blockquote>
+        </Motion.figure>
+      ))}
+    </div>
+  );
+}
+
+function Contact({ personal, socials }) {
+  const links = [
+    { label: 'Email', value: socials?.email, href: socials?.email ? `mailto:${socials.email}` : '', icon: Mail },
+    { label: 'GitHub', value: socials?.github, href: socials?.github, icon: Github },
+    { label: 'LinkedIn', value: socials?.linkedin, href: socials?.linkedin, icon: Linkedin },
+    { label: 'Twitter', value: socials?.twitter, href: socials?.twitter, icon: Twitter },
+  ].filter((link) => link.value);
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="rounded-3xl border border-fuchsia-300/20 bg-fuchsia-300/10 p-6">
+        <Award className="h-10 w-10 text-fuchsia-100" />
+        <h3 className="mt-4 text-3xl font-black text-white">Final level cleared.</h3>
+        <p className="mt-3 text-slate-300">
+          Connect with {personal?.name || 'this portfolio owner'} and turn the unlocked story into a real conversation.
+        </p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {links.length ? links.map((link) => (
+          <a
+            key={link.label}
+            href={link.href}
+            target={link.label === 'Email' ? undefined : '_blank'}
+            rel={link.label === 'Email' ? undefined : 'noreferrer'}
+            className="group flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 p-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
+          >
+            <span className="flex items-center gap-3 font-bold text-white">
+              {React.createElement(link.icon, { className: 'h-5 w-5 text-cyan-100' })}
+              {link.label}
+            </span>
+            <ArrowRight className="h-5 w-5 text-slate-500 transition group-hover:translate-x-1 group-hover:text-cyan-100" />
+          </a>
+        )) : <EmptyState label="Contact links" />}
+      </div>
+    </div>
+  );
+}
 
 export default function QuizReveal() {
   const portfolio = data || {};
