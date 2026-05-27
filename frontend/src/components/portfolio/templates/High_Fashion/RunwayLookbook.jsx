@@ -3,27 +3,27 @@ import React from "react";
 export default function RunwayLookbook() {
   return (
     <section className="w-full min-h-screen bg-stone-700 text-stone-400 px-6 md:px-12 lg:px-20 py-20">
-
+     
       <nav className="flex items-center justify-between mb-16">
 
       
         <h2 className="text-2xl font-semibold text-stone-300 font-serif">
-          High Fashion Theme
+          High Fashion Theme- Runway Lookbook
         </h2>
 
        
         <div className="flex gap-8 text-stone-300 text-sm uppercase tracking-widest">
 
           <a href="#" className="hover:text-amber-500 transition-all duration-300">
-            Home
+            HOME
           </a>
 
           <a href="#" className="hover:text-amber-500 transition-all duration-300">
-            About
+            ABOUT
           </a>
 
           <a href="#" className="hover:text-amber-500 transition-all duration-300">
-            Contact
+            CONTACT
           </a>
 
         </div>
