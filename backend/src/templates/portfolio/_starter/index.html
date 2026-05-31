@@ -91,9 +91,8 @@
        FOOTER SECTION
        ====================== -->
   <footer>
-    <p>Built with career-pilot</p>
     <div class="footer-container">
-      <p>&copy; <script>document.write(new Date().getFullYear())</script> {{portfolio.owner.name}}. All rights reserved.</p>
+      <p>&copy; <span id="current-year"></span> {{portfolio.owner.name}}. All rights reserved.</p>
       
       <div class="footer-socials">
         {{#if portfolio.owner.github}}
@@ -113,5 +112,8 @@
 
   </footer>
 
+  <script>
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
