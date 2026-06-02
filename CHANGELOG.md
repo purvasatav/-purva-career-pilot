@@ -1,3 +1,14 @@
+## [1.0.1](https://github.com/advikdivekar/career-pilot-advik/compare/v1.0.0...v1.0.1) (2026-06-02)
+
+
+### Bug Fixes
+
+* close missing div tags in TemplateGallery TypewriterEffect section ([b3a116a](https://github.com/advikdivekar/career-pilot-advik/commit/b3a116a5418044c8360af83ceec0b0ce6a382591))
+* remove duplicate concatenated code from TemplateGallery and Watercolor_Artistic ([037ff0d](https://github.com/advikdivekar/career-pilot-advik/commit/037ff0d5af1cdd02c85c82fdafc7fd51a4e592f4))
+* remove duplicate concatenated component from Desert_Dunes template ([0f6c9a2](https://github.com/advikdivekar/career-pilot-advik/commit/0f6c9a2211d63809c5c22c17c6b708fd0a6c31f7))
+* remove duplicate fontSize key in Color_Block skill bar span ([9e24814](https://github.com/advikdivekar/career-pilot-advik/commit/9e24814175a5ddf062ef9ae85a1a6b132bf49eae))
+* repair TemplateGallery JSX - remove orphan fragments, fix div balance, restore missing imports ([1140678](https://github.com/advikdivekar/career-pilot-advik/commit/11406781943c3cc9d506439aa0964c9f7df0592a))
+
 # 1.0.0 (2026-06-02)
 
 
