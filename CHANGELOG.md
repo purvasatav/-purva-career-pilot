@@ -1,3 +1,17 @@
+# [1.245.0](https://github.com/anurag3407/career-pilot/compare/v1.244.3...v1.245.0) (2026-06-15)
+
+
+### Bug Fixes
+
+* load Scandinavian template fonts from head ([93188a9](https://github.com/anurag3407/career-pilot/commit/93188a983468d35316736916029ca409e5fffef9))
+* polish Scandinavian Light template robustness ([96459d5](https://github.com/anurag3407/career-pilot/commit/96459d5b5eb102e236a34750af53dc8b60e5dbe0))
+* validate Scandinavian project links ([f3b3442](https://github.com/anurag3407/career-pilot/commit/f3b34420684762b9621446f5cdbfe767a9d31f8a))
+
+
+### Features
+
+* add Scandinavian Light portfolio template ([#1911](https://github.com/anurag3407/career-pilot/issues/1911)) ([05af3d8](https://github.com/anurag3407/career-pilot/commit/05af3d8941740dacb50b6041efa87b9b186f9723))
+
 ## [1.244.3](https://github.com/anurag3407/career-pilot/compare/v1.244.2...v1.244.3) (2026-06-15)
 
 
