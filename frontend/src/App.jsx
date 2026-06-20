@@ -54,6 +54,11 @@ const SecuritySettings = lazy(() => import("./pages/SecuritySettings"));
 const EmailGenerator = lazy(() => import("./pages/EmailGenerator"));
 const LinkedInOptimizer = lazy(() => import("./pages/LinkedInOptimizer"));
 const Settings = lazy(() => import("./pages/Settings"));
+const ResumeRoast = lazy(() => import('./pages/ResumeRoast'));
+const RoastHub = lazy(() => import('./pages/hubs/RoastHub'));
+const PortfolioGithub = lazy(() => import('./pages/PortfolioGithub'));
+const GithubPortfolioHub = lazy(() => import('./pages/hubs/GithubPortfolioHub'));
+const GithubCallback = lazy(() => import('./pages/auth/GithubCallback'));
 const SkillGap = lazy(() => import("./pages/SkillGap"));
 const ResumeHub = lazy(() => import("./pages/hubs/ResumeHub"));
 const JobsHub = lazy(() => import("./pages/hubs/JobsHub"));
@@ -128,8 +133,6 @@ import Book_Page_Flip_3D_Render from './components/portfolio/templates/Book_Page
 import IKEA_Assembly_Manual from './components/portfolio/templates/IKEA_Assembly_Manual/index.jsx';
 import MichelinStarChefPlating from './components/portfolio/templates/Michelin_Star_Chef_Plating/index.jsx';
 import SommelierWineCellarRacks from './components/portfolio/templates/Sommelier_Wine_Cellar_Racks/index.jsx';
-// import SharedResumeView from './pages/SharedResumeView.jsx'
-import SharedResumeView from './pages/SharedResumeView.jsx'
 import MinimalDarkFluid from './components/portfolio/templates/Minimal_Dark_Fluid/index.jsx';
 import TerminalSkills from './components/portfolio/templates/Terminal_Skills/index.jsx';
 import ChiragChrgTheme from './components/portfolio/templates/ChiragChrg_Theme/index.jsx';
@@ -333,6 +336,16 @@ function AppRoutes() {
         <Route path="/upload" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Upload..." />}><Upload /></Suspense></ProtectedRoute>} />
         <Route
           path="/shared/:shareToken" element={<SharedResumeView />} />
+        <Route
+          path="/roast/:shareToken"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingScreen label="Loading shared roast..." />}>
+                <ResumeRoast />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
         <Route path="/resume-builder"
           element={
             <ProtectedRoute>
@@ -400,6 +413,9 @@ function AppRoutes() {
         <Route path="/linkedin-optimizer" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading LinkedIn Optimizer..." />}><LinkedInOptimizer /></Suspense></ProtectedRoute>} />
         <Route path="/skill-gap" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Skill Gap Analyzer..." />}><SkillGap /></Suspense></ProtectedRoute>} />
         <Route path="/deployments" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Deployments..." />}><Deployments /></Suspense></ProtectedRoute>} />
+        <Route path="/resume-roast" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Resume Roast..." />}><ResumeRoast /></Suspense></ProtectedRoute>} />
+        <Route path="/portfolio/github" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading GitHub Portfolio Builder..." />}><PortfolioGithub /></Suspense></ProtectedRoute>} />
+        <Route path="/auth/github/callback" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Completing GitHub connection..." />}><GithubCallback /></Suspense></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Settings..." />}><Settings /></Suspense></ProtectedRoute>} />
 
 
@@ -416,20 +432,11 @@ function AppRoutes() {
           <Route path="logins" element={<AdminLogins />} />
           <Route path="bugs" element={<AdminBugs />} />
         </Route>
-            <AdminRoute>
-              <Suspense fallback={<LoadingScreen label="Loading Admin..." />}>
-                <AdminLayout />
-              </Suspense>
-            </AdminRoute>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="logins" element={<AdminLogins />} />
-            <Route path="bugs" element={<AdminBugs />} />
-          </Route>
 
         {/* Hub Routes */}
         <Route path="/hub/resume" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Resume Hub..." />}><ResumeHub /></Suspense></ProtectedRoute>} />
+        <Route path="/hub/roast" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Roast Hub..." />}><RoastHub /></Suspense></ProtectedRoute>} />
+        <Route path="/hub/portfolio/github" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading GitHub Portfolio Hub..." />}><GithubPortfolioHub /></Suspense></ProtectedRoute>} />
         <Route path="/hub/jobs" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Jobs Hub..." />}><JobsHub /></Suspense></ProtectedRoute>} />
         <Route path="/hub/portfolio" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Portfolio Hub..." />}><PortfolioHub /></Suspense></ProtectedRoute>} />
         <Route path="/hub/career" element={<ProtectedRoute><Suspense fallback={<LoadingScreen label="Loading Career Hub..." />}><CareerGrowthHub /></Suspense></ProtectedRoute>} />
