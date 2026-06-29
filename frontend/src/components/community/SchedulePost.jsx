@@ -36,10 +36,15 @@ export default function SchedulePost({ onClose, onSchedule }) {
       return;
     }
 
-    if (chosen.getTime() <= Date.now() + 5 * 60 * 1000) {
+    // Round comparison to minutes to match UI/input precision
+    const nowRounded = new Date();
+    nowRounded.setSeconds(0, 0);
+
+    if (chosen.getTime() <= nowRounded.getTime() + 5 * 60 * 1000) {
       setError('Please schedule at least 5 minutes into the future.');
       return;
     }
+
 
     onSchedule(chosen.toISOString());
   };
@@ -91,7 +96,7 @@ export default function SchedulePost({ onClose, onSchedule }) {
             />
             {error && (
               <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400">
-                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                 {error}
               </p>
             )}

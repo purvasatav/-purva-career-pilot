@@ -4,6 +4,24 @@ import { ApiError } from './errorHandler.js';
 // Middleware to verify Firebase ID token
 export const verifyToken = async (req, res, next) => {
   try {
+    // Development bypass
+    if (process.env.NODE_ENV === 'development' && process.env.DEV_BYPASS_AUTH === 'true') {
+      const adminEmails = (process.env.ADMIN_EMAILS || '')
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean);
+      const devEmail = (process.env.DEV_USER_EMAIL || 'dev@example.com').toLowerCase();
+      req.user = {
+        uid: process.env.DEV_USER_UID || 'dev-user-001',
+        email: process.env.DEV_USER_EMAIL || 'dev@example.com',
+        name: 'Local Dev User',
+        picture: null,
+        emailVerified: true,
+        isAdmin: adminEmails.includes(devEmail)
+      };
+      return next();
+    }
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -14,40 +32,78 @@ export const verifyToken = async (req, res, next) => {
 
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
+
+      const adminEmails = (process.env.ADMIN_EMAILS || '')
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean);
+
+      const emailLower = decodedToken.email?.toLowerCase();
+
       req.user = {
         uid: decodedToken.uid,
         email: decodedToken.email,
         name: decodedToken.name || decodedToken.email?.split('@')[0],
         picture: decodedToken.picture || null,
-        emailVerified: decodedToken.email_verified
+        emailVerified: !!decodedToken.email_verified,
+        isAdmin: !!decodedToken.email_verified && adminEmails.includes(emailLower)
       };
+
       next();
     } catch (firebaseError) {
-      // For development, allow bypass if Firebase Admin is not fully configured
-      if (process.env.NODE_ENV === 'development' && firebaseError.code === 'app/no-app') {
-        console.warn('Firebase Admin not configured, allowing request in development mode');
-        // Use DEV_USER_EMAIL from .env for testing, or default
-        const devEmail = process.env.DEV_USER_EMAIL || 'dev@example.com';
-        req.user = {
-          uid: 'dev-user',
-          email: devEmail,
-          name: 'Developer',
-          emailVerified: true
-        };
-        console.log(`   Dev user email: ${devEmail}`);
-        next();
-      } else {
-        throw new ApiError(401, 'Invalid or expired token');
+      if (firebaseError?.code === 'app/no-app') {
+        console.error('Firebase Admin not configured');
+
+        throw new ApiError(
+          500,
+          'Firebase Admin not configured'
+        );
       }
+
+      throw new ApiError(401, 'Invalid or expired token');
     }
   } catch (error) {
     next(error);
   }
 };
 
+// Middleware to restrict access to admin users only.
+// Must be placed after verifyToken in the middleware chain.
+// Admin users are identified by email matching the ADMIN_EMAILS environment variable
+// (comma-separated list). Returns 403 for any authenticated user not on the list.
+export const adminOnly = (req, res, next) => {
+  const adminEmails = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!req.user || !req.user.emailVerified || !adminEmails.includes(req.user.email?.toLowerCase())) {
+    return next(new ApiError(403, 'Admin access required'));
+  }
+  next();
+};
+
 // Optional auth middleware - doesn't fail if no token
 export const optionalAuth = async (req, res, next) => {
   try {
+    // Development bypass
+    if (process.env.NODE_ENV === 'development' && process.env.DEV_BYPASS_AUTH === 'true') {
+      const adminEmails = (process.env.ADMIN_EMAILS || '')
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean);
+      const devEmail = (process.env.DEV_USER_EMAIL || 'dev@example.com').toLowerCase();
+      req.user = {
+        uid: process.env.DEV_USER_UID || 'dev-user-001',
+        email: process.env.DEV_USER_EMAIL || 'dev@example.com',
+        name: 'Local Dev User',
+        picture: null,
+        emailVerified: true,
+        isAdmin: adminEmails.includes(devEmail)
+      };
+      return next();
+    }
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -59,19 +115,38 @@ export const optionalAuth = async (req, res, next) => {
 
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
+
+      const adminEmails = (process.env.ADMIN_EMAILS || '')
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean);
+
+      const emailLower = decodedToken.email?.toLowerCase();
+
       req.user = {
         uid: decodedToken.uid,
         email: decodedToken.email,
         name: decodedToken.name || decodedToken.email?.split('@')[0],
         picture: decodedToken.picture || null,
-        emailVerified: decodedToken.email_verified
+        emailVerified: !!decodedToken.email_verified,
+        isAdmin: !!decodedToken.email_verified && adminEmails.includes(emailLower)
       };
+
+      next();
     } catch (error) {
+      if (error?.code === 'app/no-app') {
+        console.error('Firebase Admin not configured');
+
+        throw new ApiError(
+          500,
+          'Firebase Admin not configured'
+        );
+      }
+
       req.user = null;
+      next();
     }
-    next();
   } catch (error) {
-    req.user = null;
-    next();
+    next(error);
   }
 };
